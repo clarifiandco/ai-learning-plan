@@ -2,8 +2,7 @@
 
 A self-guided AI learning plan for professionals. Choose a 30-day, 3-month, or 6-month path, then build real skill through hands-on activities, practice drills, and curated courses. Track your progress as you go and apply AI to the work you already do.
 
-**Open the tool:** https://yourusername.github.io/ai-learning-plan/
-_(Replace this with your live link once GitHub Pages is set up.)_
+**Open the tool:** https://clarifiandco.github.io/ai-learning-plan/
 
 ## What it is
 
