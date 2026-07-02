@@ -160,6 +160,7 @@
   .nextcard .next-btn:hover{background:#274668;}
   .nextcard .next-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
   .nextcard.done{border-color:var(--gold);background:linear-gradient(180deg,#FBF5E9,#FCFAF4);box-shadow:0 2px 12px rgba(176,141,87,.13);}
+  .nextcard.done .nextline{margin-top:2px;padding-top:12px;border-top:1px solid rgba(176,141,87,.3);}
   .nextcard .cheer{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:8px;}
   .nextcard .check{width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;}
   .tabs{display:flex;border-bottom:1px solid var(--line);margin:0 2px 26px;}
@@ -667,6 +668,11 @@
     "30":"Deepen your skills and start applying AI across more of your real work.",
     "3":"Take on advanced, higher-impact work, and build things others can use."
   };
+  var ACHIEVED={
+    "30":"You have built real comfort with AI and a daily habit you can rely on.",
+    "3":"You can now apply AI across your real work: stronger prompting, a custom assistant, a quality standard you trust, sourced research, working with your own documents, basic data analysis, and a finished deliverable shipped end to end.",
+    "6":"Across three levels you have gone from your first passes with AI to shipping real work, building custom assistants and multi-step workflows, grounding AI in your own sources, running rigorous analysis, and solving a real challenge with measured impact. You can apply AI to meaningful work with confidence, and help others do the same."
+  };
   function nextCardHTML(){
     var mods=visibleModules(), total=0, done=0, i, k, ids;
     for(i=0;i<mods.length;i++){ ids=stepIds(mods[i]); total+=ids.length; for(k=0;k<ids.length;k++){ if(isDone(ids[k])) done++; } }
@@ -675,20 +681,21 @@
     if(complete && nxt){
       var nm=PLAN_META[nxt];
       return '<div class="nextcard done"><div class="cheer"><span class="check">\u2713</span> '+esc(cur.lvl)+' complete</div>'+
-        '<h3>Nice work. You finished '+esc(cur.name)+'.</h3>'+
-        '<p>'+esc(NEXT_DESC[plan])+' Ready to keep going?</p>'+
+        '<h3>Congratulations. You finished '+esc(cur.name)+'.</h3>'+
+        '<p>'+esc(ACHIEVED[plan])+'</p>'+
+        '<p class="nextline"><strong>Up next:</strong> '+esc(nm.lvl)+', '+esc(nm.title)+'. '+esc(NEXT_DESC[plan])+'</p>'+
         '<button class="next-btn" data-goto="'+nxt+'">Start '+esc(nm.lvl)+': '+esc(nm.title)+'</button></div>';
     }
     if(complete && !nxt){
       return '<div class="nextcard done"><div class="cheer"><span class="check">\u2713</span> Path complete</div>'+
-        '<h3>You did it. You finished the full path.</h3>'+
-        '<p>You can apply AI to meaningful work with confidence, and help others do the same. Revisit any level anytime to sharpen a skill.</p></div>';
+        '<h3>Congratulations. You finished all three levels.</h3>'+
+        '<p>'+esc(ACHIEVED["6"])+'</p></div>';
     }
     if(nxt){
       var nm2=PLAN_META[nxt];
-      return '<div class="nextcard"><div class="eyebrow-sm">Up next when you finish</div>'+
+      return '<div class="nextcard"><div class="eyebrow-sm">Up next</div>'+
         '<h3>'+esc(nm2.lvl)+': '+esc(nm2.title)+'</h3>'+
-        '<p>Finish this level to unlock it. '+esc(NEXT_DESC[plan])+'</p></div>';
+        '<p>When you finish here, this is where you go next. '+esc(NEXT_DESC[plan])+' You can switch levels anytime from the buttons above.</p></div>';
     }
     return '<div class="nextcard"><div class="eyebrow-sm">The final level</div>'+
       '<h3>You are on the last stretch.</h3>'+
