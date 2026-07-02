@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your AI Learning Plan</title>
+<style>
+  :root{
+    --navy:#1F3A5F; --navy-soft:#33527A; --gold:#B08D57; --gold-deep:#96733F;
+    --parch:#F7F3EA; --card:#FFFFFF; --line:#E7DFCF; --ink:#23262B; --slate:#6A6E77;
+    --drill:#F3EEE1; --ok:#2F6B4F;
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--parch);color:var(--ink);font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;padding:0 18px;}
+  .wrap{max-width:820px;margin:0 auto;padding:40px 0 80px;}
+
+  /* Header */
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;}
+  h1{font-family:var(--serif);color:var(--navy);font-size:34px;line-height:1.15;margin:10px 0 6px;font-weight:700;}
+  .rule{height:2px;background:var(--gold);width:64px;margin:14px 0 18px;border-radius:2px;}
+  .lede{color:var(--slate);font-size:16px;max-width:640px;margin:0 0 26px;}
+
+  /* Plan selector */
+  .plans{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+  .plan-btn{font-family:var(--sans);font-size:15px;font-weight:600;color:var(--navy);
+    background:transparent;border:1.5px solid var(--navy);border-radius:999px;padding:9px 18px;cursor:pointer;
+    transition:background .18s,color .18s;min-height:44px;}
+  .plan-btn[aria-pressed="true"]{background:var(--navy);color:#fff;}
+  .plan-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .includes{font-size:14px;color:var(--slate);font-style:italic;margin:6px 2px 22px;min-height:20px;}
+
+  /* Progress */
+  .progress-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:30px;
+    box-shadow:0 1px 2px rgba(31,58,95,.04);}
+  .progress-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:12px;}
+  .progress-top .lab{font-family:var(--serif);color:var(--navy);font-size:17px;font-weight:700;}
+  .progress-top .pct{font-size:14px;color:var(--slate);font-weight:600;}
+  .track{height:9px;background:#EDE6D6;border-radius:999px;overflow:hidden;}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-deep));border-radius:999px;transition:width .35s ease;}
+
+  /* Phase */
+  .phase{margin:34px 0 16px;}
+  .phase-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;}
+  .phase h2{font-family:var(--serif);color:var(--navy);font-size:23px;margin:6px 0 2px;font-weight:700;}
+  .phase .note{font-size:13.5px;color:var(--slate);font-style:italic;margin-bottom:4px;}
+
+  /* Module card */
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden;
+    box-shadow:0 1px 2px rgba(31,58,95,.04);}
+  .mod-head{width:100%;text-align:left;background:none;border:0;cursor:pointer;padding:16px 18px;display:flex;align-items:center;gap:14px;
+    font-family:var(--sans);}
+  .mod-head:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;}
+  .badge{flex:0 0 auto;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);
+    border:1.5px solid var(--line);border-radius:6px;padding:5px 8px;min-width:74px;text-align:center;background:#FBF8F1;}
+  .mod.done .badge{color:#fff;background:var(--gold);border-color:var(--gold);}
+  .mod-title{flex:1 1 auto;font-family:var(--serif);color:var(--navy);font-size:17.5px;font-weight:700;line-height:1.25;}
+  .count{flex:0 0 auto;font-size:13px;color:var(--slate);font-weight:600;font-variant-numeric:tabular-nums;}
+  .chev{flex:0 0 auto;width:16px;height:16px;border-right:2px solid var(--navy-soft);border-bottom:2px solid var(--navy-soft);
+    transform:rotate(45deg);transition:transform .2s;margin-left:2px;}
+  .mod.open .chev{transform:rotate(-135deg);}
+
+  .mod-body{display:none;padding:2px 18px 20px;border-top:1px solid var(--line);}
+  .mod.open .mod-body{display:block;}
+  .focus{color:var(--slate);font-size:14.5px;margin:14px 0 14px;}
+
+  ul.items{list-style:none;margin:0;padding:0;}
+  ul.items li{display:flex;align-items:flex-start;gap:11px;padding:8px 0;border-bottom:1px dashed #EFE8D8;}
+  ul.items li:last-child{border-bottom:0;}
+  .cb{flex:0 0 auto;appearance:none;-webkit-appearance:none;width:21px;height:21px;border:2px solid var(--navy-soft);
+    border-radius:6px;cursor:pointer;margin-top:1px;position:relative;background:#fff;transition:background .15s,border-color .15s;}
+  .cb:checked{background:var(--gold);border-color:var(--gold);}
+  .cb:checked::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;
+    border-width:0 2.5px 2.5px 0;transform:rotate(45deg);}
+  .cb:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .itext{font-size:15px;color:var(--ink);transition:color .15s;}
+  li.checked .itext{color:#9BA0A8;text-decoration:line-through;text-decoration-color:#CFC7B4;}
+
+  .drill{background:var(--drill);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 14px;margin:14px 0 4px;
+    display:flex;gap:11px;align-items:flex-start;}
+  .drill .dtitle{font-weight:700;color:var(--navy);font-size:14.5px;}
+  .drill .dbody{font-size:14px;color:#4B4F57;margin-top:2px;}
+
+  .resource{margin-top:16px;}
+  .resource a{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--navy);
+    text-decoration:none;border:1.5px solid var(--line);background:#FBF8F1;border-radius:999px;padding:8px 14px;transition:border-color .15s;}
+  .resource a:hover{border-color:var(--gold);}
+  .resource .tag{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;}
+
+  .outcome{margin-top:16px;border-left:3px solid var(--navy);padding:2px 0 2px 14px;font-size:14.5px;color:var(--ink);}
+  .outcome b{color:var(--navy);}
+  .outcome.milestone{border-left-color:var(--gold);}
+  .outcome.milestone b{color:var(--gold-deep);}
+
+  /* Courses */
+  .courses{margin-top:48px;padding-top:8px;}
+  .courses h2{font-family:var(--serif);color:var(--navy);font-size:23px;margin:6px 0 4px;}
+  .courses .sub{color:var(--slate);font-size:14.5px;margin-bottom:18px;max-width:640px;}
+  .cgroup{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);font-weight:700;margin:22px 0 8px;}
+  .course{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:13px 15px;margin:8px 0;}
+  .course .info{flex:1 1 auto;min-width:0;}
+  .course .cn{font-weight:700;color:var(--navy);font-size:15px;}
+  .course .cmeta{font-size:13px;color:var(--slate);margin-top:2px;}
+  .course .cost{flex:0 0 auto;font-size:12px;font-weight:700;color:var(--gold-deep);background:#FBF3E6;border-radius:999px;
+    padding:5px 10px;white-space:nowrap;}
+  .course a.view{flex:0 0 auto;font-size:13px;font-weight:600;color:var(--navy);text-decoration:none;border-bottom:1.5px solid var(--gold);padding-bottom:1px;}
+
+  /* Footer */
+  .foot{margin-top:44px;border-top:1px solid var(--line);padding-top:18px;color:var(--slate);font-size:13px;
+    display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;}
+  .reset{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--navy);background:none;border:1.5px solid var(--line);
+    border-radius:999px;padding:8px 14px;cursor:pointer;min-height:40px;}
+  .reset:hover{border-color:var(--gold);}
+  .reset:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+  @media (max-width:560px){
+    .wrap{padding:28px 0 64px;}
+    h1{font-size:27px;}
+    .mod-head{gap:10px;padding:14px;}
+    .badge{min-width:0;padding:4px 7px;font-size:10px;}
+    .mod-title{font-size:16px;}
+    .count{display:none;}
+    .course{flex-wrap:wrap;}
+    .course .cost{order:3;}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+  .brand-foot{display:flex;justify-content:center;margin-top:40px;padding-top:6px;}
+  .brand-foot img{height:46px;width:auto;display:block;}
+  @media (max-width:560px){.brand-foot img{height:40px;}}
+  .callout-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:22px;box-shadow:0 1px 2px rgba(31,58,95,.04);}
+  .callout-card h3{font-family:var(--serif);color:var(--navy);font-size:17px;margin:0 0 6px;font-weight:700;}
+  .callout-card p{color:var(--slate);font-size:14px;margin:0 0 12px;}
+  .dl-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:14.5px;font-weight:600;color:#fff;background:var(--navy);border:0;border-radius:999px;padding:11px 20px;cursor:pointer;transition:background .18s;}
+  .dl-btn:hover{background:#274668;}
+  .dl-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  textarea.groundrules{width:100%;box-sizing:border-box;margin-top:2px;min-height:84px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#FCFAF4;resize:vertical;line-height:1.5;}
+  textarea.groundrules:focus-visible{outline:3px solid var(--gold);outline-offset:1px;}
+  .gr-saved{font-size:12px;color:var(--gold-deep);margin-top:6px;height:14px;}
+  .guardrail{margin-top:14px;background:var(--drill);border-left:3px solid var(--navy-soft);border-radius:0 8px 8px 0;padding:9px 13px;font-size:13px;color:#4B4F57;line-height:1.5;}
+  .guardrail b{color:var(--navy);}
+  .mstone{margin-top:16px;border:1px solid var(--line);background:#FBF8F1;border-radius:10px;padding:13px 15px;}
+  .mstone .q{font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:9px;}
+  .confrow{display:flex;gap:8px;margin-bottom:10px;}
+  .confbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}
+  .confbtn:hover{border-color:var(--gold);}
+  .confbtn.sel{background:var(--gold);border-color:var(--gold);color:#fff;}
+  .confbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .reflect-input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;}
+  .reflect-input:focus-visible{outline:3px solid var(--gold);outline-offset:1px;}
+  .nextcard{margin-top:26px;border-radius:12px;padding:18px 20px;border:1px solid var(--line);background:var(--card);}
+  .nextcard .eyebrow-sm{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin-bottom:6px;}
+  .nextcard h3{font-family:var(--serif);color:var(--navy);font-size:18px;margin:0 0 4px;font-weight:700;}
+  .nextcard p{color:var(--slate);font-size:14px;margin:0 0 14px;}
+  .nextcard p:last-child{margin-bottom:0;}
+  .nextcard .next-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:14.5px;font-weight:600;color:#fff;background:var(--navy);border:0;border-radius:999px;padding:11px 20px;cursor:pointer;transition:background .18s;}
+  .nextcard .next-btn:hover{background:#274668;}
+  .nextcard .next-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .nextcard.done{border-color:var(--gold);background:linear-gradient(180deg,#FBF5E9,#FCFAF4);box-shadow:0 2px 12px rgba(176,141,87,.13);}
+  .nextcard .cheer{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:8px;}
+  .nextcard .check{width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;}
+  .tabs{display:flex;border-bottom:1px solid var(--line);margin:0 2px 26px;}
+  .tab-btn{background:none;border:0;border-bottom:2px solid transparent;padding:10px 2px;margin-right:26px;font-family:var(--sans);font-size:15px;font-weight:600;color:var(--slate);cursor:pointer;transition:color .15s,border-color .15s;}
+  .tab-btn:hover{color:var(--navy);}
+  .tab-btn.active{color:var(--navy);border-bottom-color:var(--gold);}
+  .tab-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px;}
+  .pace{font-size:13px;color:var(--slate);font-style:italic;margin:-14px 2px 24px;}
+  .brand-foot{flex-direction:column;gap:12px;align-items:center;text-align:center;}
+  .attrib{text-align:center;max-width:440px;}
+  .attrib-by{font-family:var(--serif);color:var(--navy);font-weight:700;font-size:15px;}
+  .attrib-desc{color:var(--slate);font-size:13px;margin-top:3px;line-height:1.5;}
+  .attrib-meta{color:var(--slate);font-size:12px;margin-top:9px;opacity:.85;}
+  details.example{margin-top:12px;border:1px solid var(--line);border-radius:8px;background:#FCFAF4;overflow:hidden;}
+  details.example>summary{cursor:pointer;padding:9px 13px;font-size:13px;font-weight:600;color:var(--navy);list-style:none;}
+  details.example>summary::-webkit-details-marker{display:none;}
+  details.example>summary::before{content:"\25B8  ";color:var(--gold-deep);}
+  details.example[open]>summary::before{content:"\25BE  ";}
+  details.example .ex-body{padding:2px 13px 12px;border-top:1px solid var(--line);}
+  .ex-row{display:flex;gap:10px;margin-top:9px;font-size:13px;color:var(--ink);line-height:1.5;}
+  .ex-k{flex:0 0 60px;font-weight:700;color:var(--gold-deep);text-transform:uppercase;font-size:11px;letter-spacing:.04em;padding-top:2px;}
+  .plan-reset{margin-top:30px;padding-top:20px;border-top:1px solid var(--line);text-align:center;}
+  .howto{margin:2px 0 15px;background:#F3EFE6;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:11px 14px;}
+  .howto-h{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:5px;}
+  .howto p{margin:0;font-size:13.5px;color:var(--ink);line-height:1.6;}
+  .icol{flex:1;min-width:0;}
+  .aid{margin-top:9px;font-size:13px;}
+  .aid-link .aid-h,.aid-prompt .aid-h{font-weight:700;color:var(--gold-deep);text-transform:uppercase;font-size:11px;letter-spacing:.05em;}
+  .aid-link a{color:var(--navy);text-decoration:none;border-bottom:1px solid var(--gold);padding-bottom:1px;}
+  .aid-link a:hover{border-bottom-width:2px;}
+  .aid-link .aid-sep{color:var(--slate);}
+  .aid-prompt{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
+  .aid-prompt .aid-h{display:block;margin-bottom:6px;}
+  .aid-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre-wrap;word-break:break-word;color:var(--ink);margin:0;line-height:1.55;}
+  .copybtn{margin-top:8px;font-family:var(--sans);font-size:12px;font-weight:600;color:var(--navy);background:var(--drill);border:1px solid var(--line);border-radius:6px;padding:4px 11px;cursor:pointer;}
+  .copybtn:hover{background:#EFE7D6;}
+  .copybtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Self-guided capability program</div>
+  <h1>Your AI Learning Plan</h1>
+  <div class="rule"></div>
+  <p class="lede">Pick the level that matches where you are, then work through it one session at a time. Each level builds on the one before. Every step is a specific thing to do on your real work. Check items off as you go. Your progress saves on this device.</p>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab-btn active" data-view="plan" role="tab" aria-selected="true">Learning plan</button>
+    <button class="tab-btn" data-view="resources" role="tab" aria-selected="false">Resources</button>
+  </div>
+
+  <div id="view-plan">
+  <div class="plans" role="group" aria-label="Choose your plan">
+    <button class="plan-btn" data-plan="30" aria-pressed="true">30-Day Plan</button>
+    <button class="plan-btn" data-plan="3" aria-pressed="false">3-Month Plan</button>
+    <button class="plan-btn" data-plan="6" aria-pressed="false">6-Month Plan</button>
+  </div>
+  <div class="includes" id="includes"></div>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span class="lab" id="prog-lab">Foundation</span>
+      <span class="pct" id="prog-pct">0 of 0 steps</span>
+    </div>
+    <div class="track"><div class="fill" id="prog-fill"></div></div>
+  </div>
+
+  <div class="pace">A good pace is two or three focused sessions a week. There is no penalty for going slower.</div>
+
+  <div class="callout-card">
+    <h3>Companion workbook</h3>
+    <p>Want to track your practice in depth? Download the Excel companion. It mirrors this exact plan, with progress tracking, a prompt log, a use case portfolio, and an auto-updating dashboard.</p>
+    <button class="dl-btn" id="dlworkbook">Download the companion workbook</button>
+  </div>
+
+  <div class="callout-card">
+    <h3>My AI ground rules</h3>
+    <p>Set your own guardrails once and keep them in view as you work. Edit anytime. Saved on this device.</p>
+    <textarea class="groundrules" id="groundrules" aria-label="My AI ground rules"></textarea>
+    <div class="gr-saved" id="gr-saved"></div>
+  </div>
+
+  <div id="content"></div>
+  <div class="plan-reset"><button class="reset" id="reset">Reset this plan</button></div>
+  </div>
+
+  <div id="view-resources" hidden>
+  <div class="courses">
+    <div class="eyebrow">Reference</div>
+    <h2>Course library</h2>
+    <p class="sub">A mix of formats, price points, and providers so you can match a course to your goals and budget. All are reputable and current as of mid-2026. Last reviewed July 2026. Offerings and prices change, so confirm details on each provider's site.</p>
+    <div id="courses"></div>
+  </div>
+  </div>
+
+  <div class="foot">
+    <span>Progress is saved locally in this browser. Share this file and each person keeps their own progress.</span>
+  </div>
+  <div class="brand-foot"><img src="data:image/png;base64,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" alt="Clarifi & Co"><div class="attrib"><div class="attrib-by">Created by Clarifi &amp; Co</div><div class="attrib-desc">An organizational transformation and change management advisory practice.</div><div class="attrib-meta">Last reviewed July 2026. Kept current.</div></div></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var WORKBOOK_URI = "AI-Learning-Plan-Companion-Workbook.xlsx";
+  var GUARDRAILS = {
+    "g3":"Treat every output as a draft. Verify facts against a real source, and keep confidential, client, and personal data out of public tools.",
+    "d6":"Use approved documents only, and have the tool cite its source so you can confirm each answer.",
+    "d7":"Do not paste sensitive or personal data. Use non-sensitive or approved datasets, and check the numbers yourself.",
+    "d4":"Watch for AI's blind spots. Check for bias, missing context, and claims stated with confidence but no support.",
+    "a3":"Use approved sources only, require citations, and keep the material current so answers stay trustworthy.",
+    "a4":"Keep sensitive and personal data out of public tools, and verify every figure before you rely on it."
+  };
+
+  var EXAMPLES = {
+    "g2": '<details class="example"><summary>See what good looks like</summary><div class="ex-body"><div class="ex-row"><span class="ex-k">Weak</span><div>Write a post about our work.</div></div><div class="ex-row"><span class="ex-k">Strong</span><div>You are a marketing lead. Write a 150-word LinkedIn post announcing our new onboarding guide for new managers. Warm, direct tone. Lead with the benefit, end with one clear takeaway, and avoid jargon.</div></div></div></details>',
+    "d4": '<details class="example"><summary>See what good looks like</summary><div class="ex-body"><div class="ex-row"><span class="ex-k">Rubric</span><div>Accuracy: claims are correct and current. Tone: fits the audience. Completeness: nothing important is missing. Usefulness: the reader can act on it.</div></div><div class="ex-row"><span class="ex-k">Use it</span><div>Score each line 1 to 5, then fix the lowest one first.</div></div></div></details>'
+  };
+
+  var HOWTO = {
+    "g1": "Open each assistant in your browser and make a free account: ChatGPT at chatgpt.com, Claude at claude.ai, and Gemini at gemini.google.com. To use one, type your request into the message box in plain language, the way you would brief a capable colleague, then press enter. If the first answer is not quite right, do not start over. Just reply with what to change, for example \"make this shorter\" or \"give me two versions.\" No settings or setup are needed to begin."
+  };
+
+  var AIDS = {
+    "g4": { "3": {type:"prompt", label:"Starter prompt: set up custom instructions", text:"Use this context in every response.\nMy role: [your role]\nWhat my team does: [one line]\nWho I usually write for: [audience]\nTone I prefer: warm, direct, plain language, no jargon\nWhen you write for me, match this, lead with the main point, and keep it concise."} },
+    "d1": { "0": {type:"prompt", label:"Starter prompt: few-shot", text:"Here are examples of the style and quality I want.\nExample 1: [paste a good one]\nExample 2: [paste another]\nNow create a new one for this: [your input].\nMatch the pattern, tone, and level of detail of the examples."} },
+    "d3": { "1": {type:"links", label:"How to build one", links:[{t:"Claude: create a Project", u:"https://claude.ai/projects"},{t:"ChatGPT: create a GPT", u:"https://help.openai.com/en/articles/8554397-creating-and-editing-gpts"}]} },
+    "d5": { "0": {type:"links", label:"Tool", links:[{t:"Perplexity", u:"https://www.perplexity.ai/"}]} },
+    "d6": { "1": {type:"links", label:"Tool", links:[{t:"NotebookLM", u:"https://notebooklm.google.com/"}]} },
+    "d7": { "1": {type:"prompt", label:"Starter prompt: analyze a spreadsheet", text:"Here is a spreadsheet. Clean it up, then summarize what it shows.\nSurface the three most important trends, and give me the top three so-what takeaways I should act on.\nFlag anything that looks off or that I should double-check."} },
+    "a1": { "1": {type:"prompt", label:"Starter prompt: map a workflow", text:"Help me turn a task I repeat into a clear workflow.\nHere is what I do now: [list the steps].\nBreak it into stages. For each stage, say whether AI can do it, assist, or should be left to me.\nMark the two points where I must review before it continues."} },
+    "a2": { "1": {type:"links", label:"Tools", links:[{t:"Zapier", u:"https://zapier.com/"},{t:"Make", u:"https://www.make.com/"}]} },
+    "a3": { "1": {type:"links", label:"Tool", links:[{t:"NotebookLM", u:"https://notebooklm.google.com/"}]} }
+  };
+
+  function aidHTML(mid, idx){
+    var m=AIDS[mid]; if(!m) return "";
+    var a=m[idx]; if(!a) return "";
+    if(a.type==="prompt"){
+      return '<div class="aid aid-prompt"><div class="aid-h">'+esc(a.label)+'</div><pre class="aid-code">'+esc(a.text)+'</pre><button type="button" class="copybtn">Copy</button></div>';
+    }
+    if(a.type==="links"){
+      var parts=[];
+      for(var i=0;i<a.links.length;i++){ parts.push('<a href="'+esc(a.links[i].u)+'" target="_blank" rel="noopener">'+esc(a.links[i].t)+' \u2197</a>'); }
+      return '<div class="aid aid-link"><span class="aid-h">'+esc(a.label)+':</span> '+parts.join(' <span class="aid-sep">and</span> ')+'</div>';
+    }
+    return "";
+  }
+
+  var PHASES = [
+    {id:"getting-started", eyebrow:"Level 1 · 30 days", title:"Getting started", note:"For anyone new to AI. Build comfort, a daily habit, and safe basic use.", plans:["30"]},
+    {id:"deepen", eyebrow:"Level 2 · Months 2–3", title:"Deepen and expand", note:"Builds on Level 1. New to AI? Start with the 30-Day plan first.", plans:["3"]},
+    {id:"advanced", eyebrow:"Level 3 · Months 4–6", title:"Advanced capabilities", note:"Builds on Levels 1 and 2. Newer to AI? Start with the 30-Day or 3-Month plan first.", plans:["6"]}
+  ];
+
+  var MODULES = [
+    {id:"g1", phase:"getting-started", badge:"Week 1", title:"Get set up and take your first real passes",
+     focus:"Get accounts running and use AI on real work right away, so it becomes a tool you reach for, not a novelty.",
+     items:[
+       "Create free accounts on two or three assistants: ChatGPT, Claude, and Gemini.",
+       "Rewrite a real email. Paste one from your drafts and prompt: “Make this clearer and more concise, keep my meaning, and give me two versions.” Send the better one.",
+       "Summarize something you have to read. Paste a long report or article and prompt: “Give me five key points, then three questions I should ask about this.”",
+       "Ask a question in your field. Prompt it for a plain explanation of something from your work, then ask a follow-up to go deeper."
+     ],
+     drill:{title:"Practice drill: Same task, three tools", body:"Ask each assistant: “Explain [a topic from my work] to a brand-new teammate in five sentences.” Compare the answers, and notice which you preferred and why."},
+     resource:{tag:"Optional", text:"Claude 101, Anthropic Academy (free)", url:"https://anthropic.skilljar.com/"},
+     outcome:"You have used AI on real tasks. It is no longer intimidating."},
+
+    {id:"g2", phase:"getting-started", badge:"Week 2", title:"Prompt with structure",
+     focus:"Prompting is the highest-payoff skill. Learn a repeatable structure and how to steer a weak answer to a strong one.",
+     items:[
+       "Learn the five parts of a strong prompt: Role, Context, Task, Format, and Example.",
+       "Rebuild a weak prompt. Take “write a post about our work” and add all five parts. Run the weak and strong versions side by side.",
+       "Give it your material, do not just describe it. Paste your rough notes and prompt: “Turn these into a clean summary email to my manager.”",
+       "Iterate to great. Take a so-so result and improve it in three turns: “make it more concise,” then “warmer tone,” then “add a clear next step.”"
+     ],
+     drill:{title:"Practice drill: Make it interview you", body:"Prompt: “I need to write [X]. Before you write it, ask me five questions that will help you do it well.” Answer them, then let it draft."},
+     resource:{tag:"Course", text:"AI Fluency: Framework and Foundations, Anthropic Academy (free)", url:"https://anthropic.skilljar.com/"},
+     outcome:"You can turn a vague ask into a structured prompt and refine a weak answer into a strong one."},
+
+    {id:"g3", phase:"getting-started", badge:"Week 3", title:"Check the work",
+     focus:"You learn to trust AI by learning exactly where it fails, and by setting your own rules for safe use.",
+     items:[
+       "Fact-check an answer. Ask about something you know well, find where it is wrong or vague, then ask: “What are you least confident about here?”",
+       "Verify a source. Ask a research question, then check one claim against the source it points to.",
+       "Set your data rules. Learn what not to paste into public tools: confidential, client, or personal information, and check your company policy if you have one.",
+       "Ask for the other side. On any answer, prompt: “What is missing, and what would a skeptic push back on?”"
+     ],
+     drill:{title:"Practice drill: Catch the mistake", body:"Take one AI answer and mark each part as supported, unclear, or wrong. Decide what you would need to verify before you used it."},
+     resource:{tag:"Optional", text:"Elements of AI, University of Helsinki (free)", url:"https://www.elementsofai.com/"},
+     outcome:"You can spot where AI is weak, verify before you rely on it, and keep sensitive information safe."},
+
+    {id:"g4", phase:"getting-started", badge:"Week 4", title:"Make it a habit",
+     focus:"Turn what you have learned into a habit by locking in one task and one prompt you will reuse.",
+     items:[
+       "Choose one recurring task you do often: a status update, meeting prep, first drafts, or research summaries.",
+       "Do it start to finish with AI, then do it again with a better prompt. Notice it is faster and better the second time.",
+       "Save the prompt you will reuse for it, somewhere you will actually find it.",
+       "Set up your main assistant with your role and preferences (custom instructions or a Project) so you stop re-explaining yourself."
+     ],
+     drill:{title:"Practice drill: Name your one workflow", body:"Write down the single task you will now always do with AI, and the exact prompt you will use for it."},
+     resource:{tag:"Course", text:"Google AI Essentials, Google on Coursera (about $49/month)", url:"https://www.coursera.org/specializations/ai-essentials-google"},
+     outcome:"MILESTONE: AI is a daily habit, you have one workflow running, and your assistant is set up for you."},
+
+    {id:"d1", phase:"deepen", badge:"Skill 1", title:"Advanced prompting that raises quality",
+     focus:"Move past basic prompts into techniques that noticeably raise the quality of what you get back.",
+     items:[
+       "Show examples (few-shot): give two or three samples of what good looks like before asking for more of the same.",
+       "Ask for reasoning: add “think through this step by step” for analysis, planning, or decisions.",
+       "Match your voice: paste three samples of your own writing and prompt “Write this in my voice, based on these examples.”",
+       "Use tight constraints: practice word count, reading level, format, and what to avoid."
+     ],
+     drill:{title:"Practice drill: Build your voice prompt", body:"Create one reusable prompt that reliably produces writing in your voice, using your samples. Save it."},
+     resource:{tag:"Course", text:"Generative AI for Everyone, DeepLearning.AI (low cost, audit free)", url:"https://www.deeplearning.ai/courses/generative-ai-for-everyone/"},
+     outcome:"Your results need far less editing, because your prompts are doing more of the work."},
+
+    {id:"d2", phase:"deepen", badge:"Skill 2", title:"Build a reusable prompt system",
+     focus:"Stop starting from scratch. Turn your best prompts into a small kit you trust.",
+     items:[
+       "List your five most common outputs: emails, summaries, briefs, updates, plans.",
+       "Write and refine a reusable prompt for each one.",
+       "Store them where you will find them: a note, a doc, or your assistant's saved prompts.",
+       "Use each at least once this week and improve it based on the result."
+     ],
+     drill:{title:"Practice drill: The five-prompt kit", body:"By the end of the week, have five prompts you trust enough to reuse without thinking."},
+     resource:null,
+     outcome:"You have a personal prompt kit that makes routine work dramatically faster."},
+
+    {id:"d3", phase:"deepen", badge:"Skill 3", title:"Build a custom assistant",
+     focus:"Set up a helper that already knows the job, so you are not briefing it from scratch every time.",
+     items:[
+       "Choose one job to specialize: a first-draft writer, a meeting-notes-to-actions helper, or a question-answering assistant.",
+       "Build a custom GPT or a Claude Project for it.",
+       "Load it with reference material: your style, examples, and key context.",
+       "Test it on three real inputs and refine the instructions."
+     ],
+     drill:{title:"Practice drill: Hand it a real job", body:"Give your assistant an actual task you would normally do by hand. Refine until its first draft is genuinely useful."},
+     resource:null,
+     outcome:"You have a purpose-built assistant that produces strong first drafts for one real job."},
+
+    {id:"d4", phase:"deepen", badge:"Skill 4", title:"Set a quality standard",
+     focus:"Stop judging by feel. Build a simple standard for what good looks like, and hold output to it.",
+     items:[
+       "Write a four-line rubric for your work: accuracy, tone, completeness, usefulness.",
+       "Score three recent AI outputs against it, and find the one dimension your prompts most need to fix.",
+       "Rewrite that prompt and test it again.",
+       "Red-team it: ask the tool to critique its own output as a tough reviewer would, then apply the fixes."
+     ],
+     drill:{title:"Practice drill: Red-team your output", body:"Prompt: “Critique this as a demanding reviewer would and list what to fix.” Then apply the fixes and compare."},
+     resource:null,
+     outcome:"You can judge AI output against a clear standard, not a gut feeling."},
+
+    {id:"d5", phase:"deepen", badge:"Skill 5", title:"Research and synthesize with sources",
+     focus:"Use AI for a strong first pass at research, with the sourcing to back it up.",
+     items:[
+       "Use a research tool or Deep Research mode (Perplexity, or your assistant's research mode) for a real question.",
+       "Ask for a briefing with the sources cited for each claim.",
+       "Compare the AI summary against one original source and note any gaps.",
+       "Turn it into a short sourced brief you could send to someone."
+     ],
+     drill:{title:"Practice drill: Make it cite", body:"Require the tool to show which source each part of the answer came from, then spot-check two of them."},
+     resource:{tag:"Optional", text:"Introduction to AI for Work, DataCamp (free)", url:"https://www.datacamp.com/"},
+     outcome:"You can produce sourced research you are willing to stand behind."},
+
+    {id:"d6", phase:"deepen", badge:"Skill 6", title:"Work with your documents",
+     focus:"Ground AI in your own material so the answers are specific and trustworthy.",
+     items:[
+       "Gather a set of documents on one real topic: reports, notes, policies, research.",
+       "Load them into NotebookLM or a Claude Project.",
+       "Ask hard, specific questions and require answers to cite the source document.",
+       "Use it to produce a briefing or FAQ built only from those sources."
+     ],
+     drill:{title:"Practice drill: Source every answer", body:"Ask a question and require the tool to point to which document each part of the answer came from."},
+     resource:null,
+     outcome:"You can turn a pile of documents into a reliable, question-and-answer knowledge source."},
+
+    {id:"d7", phase:"deepen", badge:"Skill 7", title:"Basic data analysis",
+     focus:"Use AI to get from a real spreadsheet to a clear, decision-ready insight.",
+     items:[
+       "Take a real spreadsheet you actually use.",
+       "Ask AI to clean it, summarize it, and surface the top three trends.",
+       "Have it build a simple chart and explain what it shows.",
+       "Draft a short insight summary you could send to a decision-maker."
+     ],
+     drill:{title:"Practice drill: The so-what test", body:"Prompt: “What are the three most important so-what takeaways someone should act on?”"},
+     resource:null,
+     outcome:"You can move from a raw spreadsheet to a decision-ready insight."},
+
+    {id:"d8", phase:"deepen", badge:"Skill 8", title:"Ship a real deliverable",
+     focus:"Put it all together on something that matters, using more than one tool.",
+     items:[
+       "Pick a real, meaningful deliverable that is due soon.",
+       "Plan it: research, draft, refine, and polish, deciding which tool does each step.",
+       "Produce it end to end using at least two tools.",
+       "Write down the steps and prompts you used, so you can repeat it."
+     ],
+     drill:{title:"Practice drill: Document the recipe", body:"Capture the exact steps and prompts you used as a short, repeatable recipe."},
+     resource:{tag:"Optional", text:"Oxford AI Essentials, Oxford Saïd on Coursera ($149 or $49/month)", url:"https://www.sbs.ox.ac.uk/oxford-ai-programmes"},
+     outcome:"MILESTONE: You have shipped real work with AI and captured a process you can reuse."},
+
+    {id:"a1", phase:"advanced", badge:"Capability 1", title:"Design a multi-step workflow",
+     focus:"Move from single prompts to a repeatable sequence, with human checks where judgment matters.",
+     items:[
+       "Choose a process you repeat that has several steps.",
+       "Map it: inputs, the AI steps, the human review points, and the output.",
+       "Build it as a sequence of prompts or a chain, so each step feeds the next.",
+       "Run it on three real cases and refine where it breaks."
+     ],
+     drill:{title:"Practice drill: Mark the checkpoints", body:"Identify the two points in the workflow where a human must review before it moves on, and build them in."},
+     resource:null,
+     outcome:"You have a repeatable, multi-step workflow with judgment built into the right places."},
+
+    {id:"a2", phase:"advanced", badge:"Capability 2", title:"Automate the routine parts",
+     focus:"Take the repetitive glue work off your plate, safely, with light oversight.",
+     items:[
+       "Pick one low-risk, repetitive task that connects a few tools.",
+       "Use a no-code tool (Zapier or Make) or your assistant's automation features to draft it.",
+       "Add a review step so nothing goes out without a human check.",
+       "Test it on real inputs and confirm permissions and access are appropriate."
+     ],
+     drill:{title:"Practice drill: Start small and safe", body:"Automate one narrow step first, watch it run a few times, then expand only once you trust it."},
+     resource:null,
+     outcome:"You have a semi-automated workflow that runs with light oversight."},
+
+    {id:"a3", phase:"advanced", badge:"Capability 3", title:"Build a grounded knowledge system",
+     focus:"Create a reliable knowledge source others could use, and keep it current.",
+     items:[
+       "Assemble the key documents for a topic your team relies on.",
+       "Build a grounded assistant or notebook that answers only from those sources, with citations.",
+       "Test it against real questions and fix the gaps.",
+       "Set a simple habit for keeping the sources current."
+     ],
+     drill:{title:"Practice drill: Make it usable by someone else", body:"Have a colleague ask it three real questions, and refine based on where it fell short."},
+     resource:null,
+     outcome:"You have a reliable, source-grounded knowledge system that stays current."},
+
+    {id:"a4", phase:"advanced", badge:"Capability 4", title:"Deeper data and analysis",
+     focus:"Use AI as a rigorous analytical partner, with your judgment firmly in charge.",
+     items:[
+       "Take a real analytical question that matters to your work.",
+       "Use AI to structure the analysis, explore the data, and test explanations.",
+       "Ask it to challenge its own findings and name the assumptions behind them.",
+       "Translate the result into a recommendation, with the risks stated plainly."
+     ],
+     drill:{title:"Practice drill: Stress-test the conclusion", body:"Prompt: “What would have to be true for this conclusion to be wrong?” Then check those points."},
+     resource:null,
+     outcome:"You can run a rigorous, AI-supported analysis and stand behind the recommendation."},
+
+    {id:"a5", phase:"advanced", badge:"Capability 5", title:"Specialize for your role, and measure it",
+     focus:"Go deep where it matters most for your work, and put a number on the impact.",
+     items:[
+       "Pick your focus: writing and communication, research and analysis, operations and automation, or something specific to your field.",
+       "Build three role-specific assets you will rely on: prompts, assistants, or workflows.",
+       "Take one course that matches your focus, applied or advanced.",
+       "Track the impact: time saved, quality gained, or volume handled."
+     ],
+     drill:{title:"Practice drill: Your top-three kit", body:"Lock in the three AI assets most valuable to your specific role, and note the impact of each."},
+     resource:{tag:"Course", text:"AI: Implications for Business Strategy, MIT Sloan (executive)", url:"https://executive.mit.edu/course/artificial-intelligence/a056g00000URaa3AAD.html"},
+     outcome:"You have real depth where it matters most for your role, with the impact measured."},
+
+    {id:"a6", phase:"advanced", badge:"Capability 6", title:"Solve a real challenge, and share it",
+     focus:"Take on something substantial, ship a solution with measured impact, then hand it to someone else.",
+     items:[
+       "Choose a real challenge worth solving that takes more than one sitting.",
+       "Design and build a solution: a workflow, a custom assistant, or a semi-automated report.",
+       "Ship it, and measure the before and after: time saved, quality, or adoption.",
+       "Package it so someone else can use it: a short guide and a walkthrough."
+     ],
+     drill:{title:"Practice drill: Hand it off", body:"Teach your solution to one person and have them run it. Note their questions and fix those gaps."},
+     resource:{tag:"Optional", text:"Oxford Artificial Intelligence Programme, Oxford Saïd (executive)", url:"https://www.sbs.ox.ac.uk/programmes/online-learning/oxford-artificial-intelligence-programme"},
+     outcome:"MILESTONE: You can solve a real challenge end to end with measured impact, and enable others to use what you built."}
+  ];
+
+  var COURSES = [
+    {group:"Free and self-paced, a great place to start", list:[
+      {cn:"AI Fluency: Framework and Foundations", meta:"Anthropic Academy \u00B7 online, self-paced, certificate", cost:"Free", url:"https://anthropic.skilljar.com/"},
+      {cn:"Claude 101", meta:"Anthropic Academy \u00B7 online, self-paced, certificate", cost:"Free", url:"https://anthropic.skilljar.com/"},
+      {cn:"Elements of AI", meta:"University of Helsinki \u00B7 non-technical, no math or code", cost:"Free", url:"https://www.elementsofai.com/"},
+      {cn:"Introduction to AI for Work", meta:"DataCamp \u00B7 interactive, hands-on fundamentals", cost:"Free", url:"https://www.datacamp.com/"}
+    ]},
+    {group:"Low-cost and self-paced, go deeper", list:[
+      {cn:"Google AI Essentials", meta:"Google on Coursera \u00B7 employer-recognized certificate", cost:"~$49/mo", url:"https://www.coursera.org/specializations/ai-essentials-google"},
+      {cn:"Generative AI for Everyone", meta:"DeepLearning.AI, Andrew Ng \u00B7 strategy lens", cost:"Low / audit free", url:"https://www.deeplearning.ai/courses/generative-ai-for-everyone/"},
+      {cn:"Oxford AI Essentials", meta:"Oxford Sa\u00EFd on Coursera \u00B7 business fundamentals", cost:"$149 / $49 mo", url:"https://www.sbs.ox.ac.uk/oxford-ai-programmes"},
+      {cn:"Google AI Professional Certificate", meta:"Google on Coursera \u00B7 20+ work scenarios, portfolio", cost:"Subscription", url:"https://grow.google/ai/"}
+    ]},
+    {group:"Executive programs, lead the shift", list:[
+      {cn:"AI: Implications for Business Strategy", meta:"MIT Sloan \u00B7 online, ~6 weeks, non-technical", cost:"Premium", url:"https://executive.mit.edu/course/artificial-intelligence/a056g00000URaa3AAD.html"},
+      {cn:"Oxford Artificial Intelligence Programme", meta:"Oxford Sa\u00EFd \u00B7 online, 6 weeks, no coding", cost:"Premium", url:"https://www.sbs.ox.ac.uk/programmes/online-learning/oxford-artificial-intelligence-programme"},
+      {cn:"Leading the AI-Driven Organization", meta:"MIT Sloan \u00B7 in person, personal AI playbook", cost:"Premium", url:"https://executive.mit.edu/course/leading-the-ai-driven-organization/a054v00000r9U5cAAE.html"}
+    ]}
+  ];
+
+  var PLAN_INFO = {
+    "30":{lab:"30-Day Plan", inc:"Level 1: getting started with the basics."},
+    "3":{lab:"3-Month Plan", inc:"Level 2: deepen your knowledge and expand your skills."},
+    "6":{lab:"6-Month Plan", inc:"Level 3: advanced capabilities, with measured impact."}
+  };
+
+  // ---- storage (safe) ----
+  var mem = {};
+  var KEY = "ailp_v1";
+  function load(){ try{ var r=localStorage.getItem(KEY); mem = r?JSON.parse(r):{}; }catch(e){ mem={}; } }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(mem)); }catch(e){} }
+  function isDone(id){ return !!mem[id]; }
+  function setDone(id,v){ if(v){mem[id]=1;} else {delete mem[id];} save(); }
+  function getVal(id){ return mem[id]==null?"":mem[id]; }
+  function setVal(id,v){ if(v===""||v==null){delete mem[id];} else {mem[id]=v;} save(); }
+
+  var plan = "30";
+  var openSet = {};
+
+  function stepIds(mod){
+    var ids=[]; for(var i=0;i<mod.items.length;i++){ids.push(mod.id+"::i"+i);} if(mod.drill){ids.push(mod.id+"::drill");} return ids;
+  }
+  function modDoneCount(mod){ var ids=stepIds(mod),c=0; for(var i=0;i<ids.length;i++){if(isDone(ids[i]))c++;} return c; }
+
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  function visibleModules(){
+    return MODULES.filter(function(m){
+      var ph = PHASES.filter(function(p){return p.id===m.phase;})[0];
+      return ph && ph.plans.indexOf(plan)>-1;
+    });
+  }
+
+  function render(){
+    // plan buttons
+    var btns=document.querySelectorAll(".plan-btn");
+    for(var b=0;b<btns.length;b++){ btns[b].setAttribute("aria-pressed", btns[b].getAttribute("data-plan")===plan?"true":"false"); }
+    document.getElementById("includes").textContent = PLAN_INFO[plan].inc;
+
+    var content=document.getElementById("content");
+    var html="";
+    for(var p=0;p<PHASES.length;p++){
+      var ph=PHASES[p];
+      if(ph.plans.indexOf(plan)<0) continue;
+      html+='<div class="phase"><div class="phase-eyebrow">'+esc(ph.eyebrow)+'</div>'+
+            '<h2>'+esc(ph.title)+'</h2><div class="note">'+esc(ph.note)+'</div></div>';
+      var mods=MODULES.filter(function(m){return m.phase===ph.id;});
+      for(var m=0;m<mods.length;m++){
+        html+=moduleHTML(mods[m]);
+      }
+    }
+    html+=nextCardHTML();
+    content.innerHTML=html;
+    bind();
+    updateProgress();
+  }
+
+  function moduleHTML(mod){
+    var total=mod.items.length+(mod.drill?1:0);
+    var done=modDoneCount(mod);
+    var isOpen=!!openSet[mod.id];
+    var cls="mod"+(isOpen?" open":"")+(done===total?" done":"");
+    var h='<div class="'+cls+'" data-mod="'+mod.id+'">';
+    h+='<button class="mod-head" aria-expanded="'+(isOpen?"true":"false")+'">';
+    h+='<span class="badge">'+esc(mod.badge)+'</span>';
+    h+='<span class="mod-title">'+esc(mod.title)+'</span>';
+    h+='<span class="count">'+done+'/'+total+'</span>';
+    h+='<span class="chev" aria-hidden="true"></span></button>';
+    h+='<div class="mod-body">';
+    h+='<div class="focus">'+esc(mod.focus)+'</div>';
+    if(HOWTO[mod.id]){ h+='<div class="howto"><div class="howto-h">How to do it</div><p>'+HOWTO[mod.id]+'</p></div>'; }
+    h+='<ul class="items">';
+    for(var i=0;i<mod.items.length;i++){
+      var id=mod.id+"::i"+i; var ck=isDone(id);
+      h+='<li class="'+(ck?"checked":"")+'"><input type="checkbox" class="cb" data-id="'+id+'" '+(ck?"checked":"")+' aria-label="Mark step complete"><div class="icol"><span class="itext">'+esc(mod.items[i])+'</span>'+aidHTML(mod.id,i)+'</div></li>';
+    }
+    h+='</ul>';
+    if(mod.drill){
+      var did=mod.id+"::drill"; var dck=isDone(did);
+      h+='<div class="drill"><input type="checkbox" class="cb" data-id="'+did+'" '+(dck?"checked":"")+' aria-label="Mark drill complete">'+
+         '<div><div class="dtitle">'+esc(mod.drill.title)+'</div><div class="dbody">'+esc(mod.drill.body)+'</div></div></div>';
+    }
+    if(mod.resource){
+      h+='<div class="resource"><a href="'+esc(mod.resource.url)+'" target="_blank" rel="noopener"><span class="tag">'+esc(mod.resource.tag)+'</span> '+esc(mod.resource.text)+' \u2197</a></div>';
+    }
+    if(EXAMPLES[mod.id]){ h+=EXAMPLES[mod.id]; }
+    if(GUARDRAILS[mod.id]){ h+='<div class="guardrail"><b>Use it responsibly:</b> '+esc(GUARDRAILS[mod.id])+'</div>'; }
+    var mile=mod.outcome.indexOf("MILESTONE:")===0;
+    var otext=mile?mod.outcome.replace("MILESTONE:","Milestone:"):mod.outcome;
+    h+='<div class="outcome'+(mile?" milestone":"")+'"><b>'+(mile?"":"Outcome: ")+'</b>'+esc(otext)+'</div>';
+    if(mile){ h+=milestoneBlock(mod.id); }
+    h+='</div></div>';
+    return h;
+  }
+
+  function milestoneBlock(id){
+    var cv=getVal(id+"::conf"); var rv=getVal(id+"::reflect");
+    var b='<div class="mstone"><div class="q">How confident do you feel at this milestone?</div><div class="confrow">';
+    for(var n=1;n<=5;n++){ b+='<button type="button" class="confbtn'+(String(cv)===String(n)?" sel":"")+'" data-conf="'+id+'" data-n="'+n+'" aria-label="Confidence '+n+' of 5">'+n+'</button>'; }
+    b+='</div><input type="text" class="reflect-input" data-reflect="'+id+'" value="'+esc(rv)+'" placeholder="One line: what changed for you?" aria-label="Milestone reflection"></div>';
+    return b;
+  }
+
+  var PLAN_META={
+    "30":{lvl:"Level 1", name:"the 30-Day plan", title:"Getting started"},
+    "3":{lvl:"Level 2", name:"the 3-Month plan", title:"Deepen and expand"},
+    "6":{lvl:"Level 3", name:"the 6-Month plan", title:"Advanced capabilities"}
+  };
+  var NEXT_PLAN={"30":"3","3":"6","6":null};
+  var NEXT_DESC={
+    "30":"Deepen your skills and start applying AI across more of your real work.",
+    "3":"Take on advanced, higher-impact work, and build things others can use."
+  };
+  function nextCardHTML(){
+    var mods=visibleModules(), total=0, done=0, i, k, ids;
+    for(i=0;i<mods.length;i++){ ids=stepIds(mods[i]); total+=ids.length; for(k=0;k<ids.length;k++){ if(isDone(ids[k])) done++; } }
+    var complete = total>0 && done===total;
+    var nxt=NEXT_PLAN[plan], cur=PLAN_META[plan];
+    if(complete && nxt){
+      var nm=PLAN_META[nxt];
+      return '<div class="nextcard done"><div class="cheer"><span class="check">\u2713</span> '+esc(cur.lvl)+' complete</div>'+
+        '<h3>Nice work. You finished '+esc(cur.name)+'.</h3>'+
+        '<p>'+esc(NEXT_DESC[plan])+' Ready to keep going?</p>'+
+        '<button class="next-btn" data-goto="'+nxt+'">Start '+esc(nm.lvl)+': '+esc(nm.title)+'</button></div>';
+    }
+    if(complete && !nxt){
+      return '<div class="nextcard done"><div class="cheer"><span class="check">\u2713</span> Path complete</div>'+
+        '<h3>You did it. You finished the full path.</h3>'+
+        '<p>You can apply AI to meaningful work with confidence, and help others do the same. Revisit any level anytime to sharpen a skill.</p></div>';
+    }
+    if(nxt){
+      var nm2=PLAN_META[nxt];
+      return '<div class="nextcard"><div class="eyebrow-sm">Up next when you finish</div>'+
+        '<h3>'+esc(nm2.lvl)+': '+esc(nm2.title)+'</h3>'+
+        '<p>Finish this level to unlock it. '+esc(NEXT_DESC[plan])+'</p></div>';
+    }
+    return '<div class="nextcard"><div class="eyebrow-sm">The final level</div>'+
+      '<h3>You are on the last stretch.</h3>'+
+      '<p>Complete these to finish the full path.</p></div>';
+  }
+
+  function bind(){
+    var heads=document.querySelectorAll(".mod-head");
+    for(var i=0;i<heads.length;i++){
+      heads[i].addEventListener("click", function(){
+        var card=this.parentNode; var id=card.getAttribute("data-mod");
+        openSet[id]=!openSet[id];
+        card.classList.toggle("open");
+        this.setAttribute("aria-expanded", openSet[id]?"true":"false");
+      });
+    }
+    var cbs=document.querySelectorAll(".cb");
+    for(var j=0;j<cbs.length;j++){
+      cbs[j].addEventListener("change", function(){
+        setDone(this.getAttribute("data-id"), this.checked);
+        var li=this.closest("li"); if(li){ li.classList.toggle("checked", this.checked); }
+        var card=this.closest(".mod"); if(card){ refreshCard(card); }
+        updateProgress();
+      });
+    }
+    var cfs=document.querySelectorAll(".confbtn");
+    for(var q=0;q<cfs.length;q++){
+      cfs[q].addEventListener("click", function(){
+        setVal(this.getAttribute("data-conf")+"::conf", this.getAttribute("data-n"));
+        var sibs=this.parentNode.querySelectorAll(".confbtn");
+        for(var s=0;s<sibs.length;s++){ sibs[s].classList.remove("sel"); }
+        this.classList.add("sel");
+      });
+    }
+    var rfs=document.querySelectorAll(".reflect-input");
+    for(var w=0;w<rfs.length;w++){
+      rfs[w].addEventListener("input", function(){ setVal(this.getAttribute("data-reflect")+"::reflect", this.value); });
+    }
+    var nbs=document.querySelectorAll(".next-btn");
+    for(var y=0;y<nbs.length;y++){
+      nbs[y].addEventListener("click", function(){ plan=this.getAttribute("data-goto"); render(); window.scrollTo({top:0,behavior:"smooth"}); });
+    }
+    var cps=document.querySelectorAll(".copybtn");
+    for(var z=0;z<cps.length;z++){
+      cps[z].addEventListener("click", function(){
+        var pre=this.parentNode.querySelector(".aid-code"); if(!pre) return;
+        var txt=pre.textContent, btn=this;
+        function done(){ var o=btn.textContent; btn.textContent="Copied"; setTimeout(function(){ btn.textContent=o; },1400); }
+        if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(done, done); }
+        else { try{ var r=document.createRange(); r.selectNode(pre); var sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand("copy"); sel.removeAllRanges(); }catch(e){} done(); }
+      });
+    }
+  }
+
+  function refreshCard(card){
+    var id=card.getAttribute("data-mod");
+    var mod=MODULES.filter(function(m){return m.id===id;})[0];
+    var total=mod.items.length+(mod.drill?1:0);
+    var done=modDoneCount(mod);
+    card.querySelector(".count").textContent=done+"/"+total;
+    card.classList.toggle("done", done===total);
+  }
+
+  function updateProgress(){
+    var mods=visibleModules(); var total=0, done=0;
+    for(var i=0;i<mods.length;i++){ var ids=stepIds(mods[i]); total+=ids.length; for(var k=0;k<ids.length;k++){if(isDone(ids[k]))done++;} }
+    var pct= total? Math.round(done/total*100):0;
+    document.getElementById("prog-fill").style.width=pct+"%";
+    document.getElementById("prog-lab").textContent=PLAN_INFO[plan].lab;
+    document.getElementById("prog-pct").textContent=done+" of "+total+" steps \u00B7 "+pct+"%";
+  }
+
+  function renderCourses(){
+    var el=document.getElementById("courses"); var h="";
+    for(var g=0;g<COURSES.length;g++){
+      h+='<div class="cgroup">'+esc(COURSES[g].group)+'</div>';
+      var list=COURSES[g].list;
+      for(var i=0;i<list.length;i++){
+        var c=list[i];
+        h+='<div class="course"><div class="info"><div class="cn">'+esc(c.cn)+'</div><div class="cmeta">'+esc(c.meta)+'</div></div>'+
+           '<span class="cost">'+esc(c.cost)+'</span>'+
+           '<a class="view" href="'+esc(c.url)+'" target="_blank" rel="noopener">View \u2197</a></div>';
+      }
+    }
+    el.innerHTML=h;
+  }
+
+  // events
+  var pbtns=document.querySelectorAll(".plan-btn");
+  for(var i=0;i<pbtns.length;i++){
+    pbtns[i].addEventListener("click", function(){ plan=this.getAttribute("data-plan"); render(); window.scrollTo({top:0,behavior:"smooth"}); });
+  }
+
+  var tabBtns=document.querySelectorAll(".tab-btn");
+  for(var t=0;t<tabBtns.length;t++){
+    tabBtns[t].addEventListener("click", function(){
+      var v=this.getAttribute("data-view");
+      for(var u=0;u<tabBtns.length;u++){ var on=tabBtns[u].getAttribute("data-view")===v; tabBtns[u].classList.toggle("active",on); tabBtns[u].setAttribute("aria-selected",on?"true":"false"); }
+      document.getElementById("view-plan").hidden = (v!=="plan");
+      document.getElementById("view-resources").hidden = (v!=="resources");
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  }
+  document.getElementById("reset").addEventListener("click", function(){
+    var label=PLAN_META[plan]?PLAN_META[plan].name:"this plan";
+    if(confirm("Reset your progress on "+label+"? This clears the checkboxes and milestone notes for this plan only, and cannot be undone. Your other plans and your ground rules stay as they are.")){
+      var mods=visibleModules();
+      for(var i=0;i<mods.length;i++){
+        var ids=stepIds(mods[i]);
+        for(var k=0;k<ids.length;k++){ delete mem[ids[k]]; }
+        delete mem[mods[i].id+"::conf"];
+        delete mem[mods[i].id+"::reflect"];
+      }
+      save(); render(); window.scrollTo({top:0,behavior:"smooth"});
+    }
+  });
+
+  load();
+  renderCourses();
+  render();
+
+  document.getElementById("dlworkbook").addEventListener("click", function(){
+    var a=document.createElement("a"); a.href=WORKBOOK_URI; a.download="AI-Learning-Plan-Companion-Workbook.xlsx";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+  var GR_DEFAULT="Keep confidential, client, and personal data out of public tools. Verify facts and sources before I rely on them. Watch for gaps, bias, and overconfident claims. I stay accountable for accuracy, tone, and decisions.";
+  var gr=document.getElementById("groundrules");
+  gr.value=getVal("groundrules")||GR_DEFAULT;
+  var grSaved=document.getElementById("gr-saved"); var grTimer=null;
+  gr.addEventListener("input", function(){ setVal("groundrules", gr.value); grSaved.textContent="Saved"; if(grTimer){clearTimeout(grTimer);} grTimer=setTimeout(function(){grSaved.textContent="";},1200); });
+})();
+</script>
+</body>
+</html>
